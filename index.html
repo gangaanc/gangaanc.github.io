@@ -135,6 +135,17 @@
 
   .nav-toggle{display:none; background:none; border:none; color:var(--ivory); font-size:26px; cursor:pointer;}
 
+  .icon-btn{
+    width:40px; height:40px; border-radius:50%;
+    border:1px solid var(--brass-dim);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ivory-dim);
+    transition:all 0.25s ease;
+    flex-shrink:0;
+  }
+  .icon-btn:hover{border-color:var(--brass); color:var(--brass-light);}
+  .icon-btn svg{width:18px; height:18px;}
+
   @media(max-width:980px){
     .nav-links{
       position:fixed; top:78px; left:0; right:0; bottom:0;
@@ -335,6 +346,16 @@
   .footer-bottom .fmedallion img{width:32px; height:32px; object-fit:contain;}
   .footer-bottom .fmedallion span{font-family:'Cormorant Garamond',serif; font-size:16px; color:var(--ivory-dim);}
   .footer-bottom .copy{font-size:12.5px; color:var(--ivory-dim); opacity:0.7;}
+  .footer-social{display:flex; align-items:center; gap:14px;}
+  .footer-social a{
+    width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--brass-dim);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ivory-dim);
+    transition:all 0.25s ease;
+  }
+  .footer-social a:hover{border-color:var(--brass); color:var(--brass-light); transform:translateY(-2px);}
+  .footer-social a svg{width:18px; height:18px;}
 
   @media(max-width:900px){
     .contact-inner{grid-template-columns:1fr; gap:44px;}
@@ -364,6 +385,9 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-cta">
+      <a href="https://www.instagram.com/ganga_arts_n_crafts/" class="icon-btn" target="_blank" rel="noopener" aria-label="Ganga Arts n Crafts on Instagram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>
+      </a>
       <a href="tel:+919971190712" class="btn btn-line">Call Us</a>
       <a href="https://wa.me/919971190712" class="btn btn-brass" target="_blank" rel="noopener">WhatsApp</a>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
@@ -552,6 +576,11 @@
       <div class="fmedallion">
         <span class="medallion" style="width:32px;height:32px;"><img src="images/logo-mark.png" alt="Ganga Arts n Crafts"></span>
         <span>Ganga Arts n Crafts</span>
+      </div>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/ganga_arts_n_crafts/" target="_blank" rel="noopener" aria-label="Ganga Arts n Crafts on Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>
+        </a>
       </div>
       <div class="copy">&copy; <span id="year"></span> Ganga Arts n Crafts, Moradabad. All rights reserved.</div>
     </div>
