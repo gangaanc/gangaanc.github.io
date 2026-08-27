@@ -12,15 +12,16 @@
 
 <style>
   :root{
-    --black:#15120E;
-    --panel:#1D1811;
-    --panel-2:#241E15;
-    --brass:#C9A24B;
-    --brass-light:#E4C77A;
-    --brass-dim:rgba(201,162,75,0.35);
-    --ivory:#F1E9D8;
-    --ivory-dim:#BFB39C;
-    --line:rgba(201,162,75,0.22);
+    --black:#F4F0EA;
+    --panel:#E5DDD0;
+    --panel-2:#D1C7BD;
+    --brass:#B85B43;
+    --brass-light:#D38072;
+    --brass-dim:rgba(184,91,67,0.35);
+    --ivory:#2B2825;
+    --ivory-dim:rgba(43,40,37,0.72);
+    --line:rgba(43,40,37,0.15);
+    --sage:#8A927E;
     --radius:2px;
   }
 
@@ -72,7 +73,7 @@
   /* ---------- NAV ---------- */
   header{
     position:fixed; top:0; left:0; right:0; z-index:100;
-    background:rgba(21,18,14,0.88);
+    background:rgba(244,240,234,0.88);
     backdrop-filter:blur(10px);
     border-bottom:1px solid var(--line);
     transition:background 0.3s ease;
@@ -131,7 +132,7 @@
     border:1px solid var(--brass-dim); color:var(--ivory);
     background:transparent;
   }
-  .btn-line:hover{border-color:var(--brass); background:rgba(201,162,75,0.08);}
+  .btn-line:hover{border-color:var(--brass); background:rgba(184,91,67,0.08);}
 
   .nav-toggle{display:none; background:none; border:none; color:var(--ivory); font-size:26px; cursor:pointer;}
 
@@ -174,8 +175,8 @@
     content:'';
     position:absolute; inset:0;
     background:
-      linear-gradient(90deg, rgba(21,18,14,0.97) 0%, rgba(21,18,14,0.85) 38%, rgba(21,18,14,0.55) 65%, rgba(21,18,14,0.35) 100%),
-      linear-gradient(0deg, rgba(21,18,14,1) 0%, rgba(21,18,14,0.2) 22%, rgba(21,18,14,0.15) 78%, rgba(21,18,14,0.9) 100%);
+      linear-gradient(90deg, rgba(244,240,234,0.97) 0%, rgba(244,240,234,0.85) 38%, rgba(244,240,234,0.55) 65%, rgba(244,240,234,0.35) 100%),
+      linear-gradient(0deg, rgba(244,240,234,1) 0%, rgba(244,240,234,0.2) 22%, rgba(244,240,234,0.15) 78%, rgba(244,240,234,0.9) 100%);
   }
   .hero-content{
     position:relative; z-index:1;
@@ -221,7 +222,7 @@
     display:flex; flex-direction:column; gap:26px;
   }
   .mark-item{display:flex; align-items:center; gap:16px;}
-  .mark-item .icon{width:34px; height:34px; flex-shrink:0; color:var(--brass);}
+  .mark-item .icon{width:34px; height:34px; flex-shrink:0; color:var(--sage);}
   .mark-item .icon svg{width:100%; height:100%;}
   .mark-item span{font-size:14px; letter-spacing:0.04em; color:var(--ivory-dim); font-weight:600;}
 
@@ -293,7 +294,7 @@
   }
   .about-grid{display:grid; grid-template-columns:0.9fr 1.1fr; gap:70px; align-items:center;}
   .about-mark{
-    font-family:'Cormorant Garamond', serif; font-size:56px; color:var(--brass); opacity:0.65;
+    font-family:'Cormorant Garamond', serif; font-size:56px; color:var(--sage); opacity:0.65;
     line-height:1; margin-bottom:18px; letter-spacing:0.02em;
   }
   .about h2{font-size:clamp(30px,3.4vw,42px); margin-bottom:22px; color:var(--ivory);}
@@ -323,7 +324,7 @@
   .contact-actions{display:flex; gap:16px; flex-wrap:wrap;}
 
   .info-card{
-    background:var(--panel); border:1px solid var(--line); padding:40px;
+    background:var(--panel-2); border:1px solid var(--line); padding:40px;
   }
   .info-row{display:flex; gap:18px; margin-bottom:26px;}
   .info-row:last-child{margin-bottom:0;}
@@ -412,8 +413,8 @@
   </div>
   <div class="wave-divider">
     <svg viewBox="0 0 1200 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,40 C150,80 300,0 450,35 C600,70 750,10 900,40 C1050,70 1150,30 1200,45 L1200,80 L0,80 Z" fill="#15120E"/>
-      <path d="M0,42 C150,78 300,8 450,38 C600,68 750,15 900,42 C1050,66 1150,32 1200,44" fill="none" stroke="#C9A24B" stroke-width="2" opacity="0.6"/>
+      <path d="M0,40 C150,80 300,0 450,35 C600,70 750,10 900,40 C1050,70 1150,30 1200,45 L1200,80 L0,80 Z" fill="#F4F0EA"/>
+      <path d="M0,42 C150,78 300,8 450,38 C600,68 750,15 900,42 C1050,66 1150,32 1200,44" fill="none" stroke="#8A927E" stroke-width="2" opacity="0.6"/>
     </svg>
   </div>
 </section>
