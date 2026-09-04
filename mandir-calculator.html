@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<title>Mandir Material Calculator</title>
+<style>
+  :root{
+    --paper:#F1ECE1; --paperDeep:#E7E0D0; --panelBg:#FAF7EF;
+    --ink:#2A2620; --inkSoft:#6B6455; --inkFaint:#9A907C;
+    --rule:#CFC5AC; --ruleSoft:#DED5BF;
+    --walnut:#5C3A21; --walnutDeep:#3A2414;
+    --brass:#9C6B34; --brassBright:#B98244;
+    --sage:#6E7A5E; --alert:#9C4530; --ok:#5E7A54;
+    --displayFont: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --bodyFont: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --monoFont: ui-monospace, SFMono-Regular, 'Roboto Mono', Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); font-family:var(--bodyFont); color:var(--ink);}
+  .sticky{position:sticky; top:0; z-index:20; background:var(--walnutDeep); border-bottom:1px solid var(--walnut);
+    padding:12px 16px; display:flex; align-items:center; justify-content:space-between;}
+  .sticky .lbl{font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:#C9BCA3;}
+  .sticky .sub{font-size:12px; color:#8C8069;}
+  .sticky .val{font-family:var(--monoFont); font-size:22px; font-weight:700; color:var(--paper);}
+  .sticky .val span{font-size:12px; color:#C9BCA3; font-weight:400;}
+  .wrap{max-width:900px; margin:0 auto; padding:24px 16px 64px; display:flex; flex-direction:column; gap:28px;}
+  h1{font-family:var(--displayFont); font-size:26px; margin:0; color:var(--ink);}
+  .sub-p{font-size:13px; color:var(--inkSoft); margin:6px 0 0;}
+  .hdr-row{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  button.ghost{display:flex; align-items:center; gap:5px; font-size:12px; color:var(--inkFaint); background:transparent;
+    border:1px solid var(--ruleSoft); padding:6px 10px; cursor:pointer; font-family:var(--bodyFont);}
+  .card{background:var(--panelBg); border:1px solid var(--ruleSoft); padding:16px;}
+  .card h3{font-family:var(--displayFont); font-size:18px; margin:0 0 12px; color:var(--ink);}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  .grid2-3{display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  @media(min-width:560px){ .grid2-3{grid-template-columns:repeat(3,1fr);} }
+  .field{display:flex; flex-direction:column; gap:4px; width:100%;}
+  .flabel{font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--inkFaint);}
+  .flabel-row{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .fdefault{font-size:10px; color:var(--sage);}
+  .frow{display:flex; align-items:baseline; gap:4px;}
+  .frow input{background:transparent; border:none; border-bottom:1px solid var(--rule); outline:none; padding:6px 0;
+    font-size:14px; width:100%; color:var(--ink); font-family:var(--monoFont);}
+  .frow input:focus{border-bottom:1px solid var(--walnut);}
+  .frow input.overridden{border-bottom:1px solid var(--brassBright);}
+  .fsuffix{font-size:10px; color:var(--inkFaint); flex-shrink:0;}
+  .reset-btn{font-size:10px; color:var(--brass); background:none; border:none; cursor:pointer; padding:0;
+    display:flex; align-items:center; gap:3px; font-family:var(--bodyFont);}
+  textarea{background:transparent; border:none; border-bottom:1px solid var(--rule); outline:none; padding:6px 0;
+    font-size:14px; width:100%; color:var(--ink); font-family:var(--bodyFont); resize:none;}
+  .elements-card{display:flex; flex-direction:column; gap:22px;}
+  .sec-header{display:flex; align-items:center; gap:12px;}
+  input.chk{width:16px; height:16px; accent-color:var(--walnut); flex-shrink:0;}
+  .tag{font-family:var(--monoFont); font-size:10px; color:var(--brass); width:24px; flex-shrink:0;}
+  .sec-title{font-family:var(--displayFont); font-size:17px; margin:0; color:var(--ink);}
+  .sec-en{font-size:13px; color:var(--inkFaint); font-weight:normal;}
+  .sec-body{padding-left:28px; margin-top:12px; margin-left:7px; border-left:1px solid var(--ruleSoft);
+    display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  @media(min-width:560px){ .sec-body{grid-template-columns:repeat(3,1fr);} }
+  .repeat-card{grid-column:1/-1; background:var(--paperDeep); border:1px solid var(--ruleSoft); padding:12px;
+    display:grid; grid-template-columns:repeat(2,1fr); gap:16px;}
+  @media(min-width:560px){ .repeat-card{grid-template-columns:repeat(3,1fr);} }
+  .repeat-tag{grid-column:1/-1; margin-bottom:-4px;}
+  .repeat-tag span{font-size:10px; padding:2px 6px; background:var(--walnut); color:var(--paper); font-family:var(--monoFont);}
+  .note-line{grid-column:1/-1; font-size:10px; color:var(--inkFaint);}
+  .doors-row{grid-column:1/-1; display:flex; align-items:center; gap:8px; margin-top:4px;}
+  .doors-row span{font-size:12px; color:var(--inkSoft);}
+  .doors-row span.faint{color:var(--inkFaint);}
+  .checks-title{font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--inkFaint); margin:0 0 6px;}
+  .check-row{display:flex; align-items:center; justify-content:space-between; font-size:12px; padding:6px 0;}
+  .check-row .l{color:var(--inkSoft);}
+  .check-row .r{font-family:var(--monoFont);}
+  .out-wrap{background:var(--walnutDeep); padding:16px;}
+  @media(min-width:560px){ .out-wrap{padding:24px;} }
+  .out-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px;}
+  .out-head h3{font-family:var(--displayFont); font-size:18px; margin:0; color:var(--paper);}
+  button.dl{display:flex; align-items:center; gap:6px; font-size:12px; padding:8px 14px; background:var(--paper);
+    color:var(--walnutDeep); font-weight:600; border:none; cursor:pointer; font-family:var(--bodyFont);}
+  .out-table{background:var(--paper); padding:16px;}
+  .out-row{display:flex; align-items:baseline; justify-content:space-between; padding:6px 0;
+    border-bottom:1px dotted var(--ruleSoft); gap:12px;}
+  .out-row .l{font-size:14px; color:var(--inkSoft);}
+  .out-row .l .n{display:block; font-size:10px; color:var(--inkFaint); font-family:var(--bodyFont); margin-top:1px;}
+  .out-row .v{font-family:var(--monoFont); font-size:14px; color:var(--ink); flex-shrink:0;}
+  .out-row.bold .l{color:var(--ink); font-weight:600;}
+  .out-row.bold .v{color:var(--walnutDeep); font-weight:700;}
+  .out-total-rule{border-top:2px solid var(--walnut); margin-top:4px; padding-top:8px;}
+  .notes-final{margin-top:12px; font-size:12px; color:var(--inkSoft);}
+  .notes-final .lbl{color:var(--inkFaint);}
+  h1 .hi{font-weight:normal;}
+</style>
+</head>
+<body>
+<div class="sticky">
+  <div>
+    <div class="lbl">मंदिर सामग्री गणक</div>
+    <div class="sub">Material calculator</div>
+  </div>
+  <div style="text-align:right;">
+    <div class="lbl">Total consumed</div>
+    <div class="val" id="stickyTotal">0.00 <span>sq ft</span></div>
+  </div>
+</div>
+<div class="wrap" id="root"></div>
+
+<script>
+// ---------- helpers ----------
+const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
+const round2 = (v) => Math.round(v * 100) / 100;
+const fmt = (v) => (Math.round(v * 100) / 100).toFixed(2);
+const sqft = (sqin) => sqin / 144;
+
+function csvCell(v){
+  const s = v === undefined || v === null ? "" : String(v);
+  return '"' + s.replace(/"/g,'""') + '"';
+}
+
+function setByPath(obj, path, value){
+  const parts = path.split(".");
+  let cur = obj;
+  for(let i=0;i<parts.length-1;i++){ cur = cur[parts[i]]; }
+  cur[parts[parts.length-1]] = value;
+}
+function getByPath(obj, path){
+  const parts = path.split(".");
+  let cur = obj;
+  for(const p of parts){ if(cur==null) return undefined; cur = cur[p]; }
+  return cur;
+}
+
+function initialState(){
+  return {
+    total:{h:"",w:"",d:""},
+    shikhar:{enabled:false, count:"1", items:[{height:"",widthOverride:null,depthOverride:null}]},
+    storage:{enabled:false, height:"", widthOverride:null, depthOverride:null, hasDoors:false},
+    panel:{enabled:false, height:"", widthOverride:null},
+    pillar:{enabled:false, heightOverride:null, depth:"", sides:"4"},
+    jaali:{enabled:false, heightOverride:null, depth:""},
+    pocket:{enabled:false, heightOverride:null, widthOverride:null},
+    steps:{enabled:false, count:"1", items:[{height:"",widthOverride:null,depth:""}]},
+    addl:{area:"", comments:""}
+  };
+}
+let state = initialState();
+
+function resizeGroup(group){
+  const s = state[group];
+  const n = Math.max(0, Math.min(30, Math.floor(num(s.count)) || 0));
+  const makeItem = group === "shikhar"
+    ? () => ({height:"",widthOverride:null,depthOverride:null})
+    : () => ({height:"",widthOverride:null,depth:""});
+  const arr = s.items.slice(0, n);
+  while(arr.length < n) arr.push(makeItem());
+  s.items = arr;
+}
+
+// ---------- derived computation ----------
+function computeAll(s){
+  const totalH = num(s.total.h), totalW = num(s.total.w), totalD = num(s.total.d);
+
+  const storageWidthActual = s.storage.widthOverride !== null ? num(s.storage.widthOverride) : totalW;
+  const storageDepthActual = s.storage.depthOverride !== null ? num(s.storage.depthOverride) : totalD;
+  const storageHeightActual = num(s.storage.height);
+
+  const panelHeightActual = num(s.panel.height);
+  const panelWidthActual = s.panel.widthOverride !== null ? num(s.panel.widthOverride) : totalW;
+
+  const shikharItems = s.shikhar.items.map(it => ({
+    height: num(it.height),
+    width: it.widthOverride !== null ? num(it.widthOverride) : totalW,
+    depth: it.depthOverride !== null ? num(it.depthOverride) : totalD,
+  }));
+
+  const pillarHeightActual = s.pillar.heightOverride !== null ? num(s.pillar.heightOverride) : panelHeightActual;
+  const pillarDepthActual = num(s.pillar.depth);
+  const pillarSides = num(s.pillar.sides);
+
+  const jaaliHeightActual = s.jaali.heightOverride !== null ? num(s.jaali.heightOverride) : panelHeightActual;
+  const jaaliDepthActual = num(s.jaali.depth);
+
+  const pocketHeightActual = s.pocket.heightOverride !== null ? num(s.pocket.heightOverride) : panelHeightActual;
+  const pocketWidthActual = s.pocket.widthOverride !== null ? num(s.pocket.widthOverride) : panelWidthActual;
+
+  const stepsItems = s.steps.items.map(it => ({
+    height: num(it.height),
+    width: it.widthOverride !== null ? num(it.widthOverride) : totalW,
+    depth: num(it.depth),
+  }));
+
+  const shikharMaterialIn = shikharItems.reduce((a,it) => a + (it.width + 2*it.depth) * it.height, 0);
+  const shikharCount = shikharItems.length;
+  const shikharMaxW = shikharCount ? Math.max(...shikharItems.map(i=>i.width)) : 0;
+  const shikharMaxD = shikharCount ? Math.max(...shikharItems.map(i=>i.depth)) : 0;
+  const shikharPerMolding = 2*shikharMaxW + 4*shikharMaxD;
+  const shikharMoldingIn = shikharCount > 0 ? (shikharCount+1) * shikharPerMolding : 0;
+
+  const storageMaterialIn = (storageWidthActual + 2*storageDepthActual) * storageHeightActual;
+  const storageMoldingIn = s.storage.hasDoors
+    ? (storageHeightActual+6) * (2*storageDepthActual + storageWidthActual)
+    : (storageHeightActual+2) * (2*storageDepthActual + storageWidthActual);
+
+  const panelMaterialIn = panelHeightActual * panelWidthActual;
+  const pillarMaterialIn = pillarDepthActual * pillarHeightActual * pillarSides * 2;
+  const jaaliMaterialIn = jaaliHeightActual * jaaliDepthActual * 2;
+  const pocketMaterialIn = pocketHeightActual * pocketWidthActual;
+  const stepsMaterialIn = stepsItems.reduce((a,it) => a + it.height*it.width, 0);
+  const stepsMoldingIn = stepsItems.reduce((a,it) => a + it.width, 0);
+  const ceilingBaseIn = totalW * totalD * 2;
+
+  const rows = [];
+  if(s.shikhar.enabled){
+    rows.push({label:`Shikhar — material (${shikharCount} nos.)`, raw: sqft(shikharMaterialIn)});
+    if(shikharCount > 0) rows.push({label:`Shikhar — molding (${shikharCount+1} nos.)`, raw: sqft(shikharMoldingIn)});
+  }
+  if(s.storage.enabled){
+    rows.push({label:"Storage", raw: sqft(storageMaterialIn)});
+    rows.push({label:"Storage — molding", raw: sqft(storageMoldingIn),
+      note: s.storage.hasDoors ? "single door/drawer, (H+6)×(2D+W)" : "single door/drawer, (H+2)×(2D+W)"});
+  }
+  if(s.panel.enabled) rows.push({label:"Panel", raw: sqft(panelMaterialIn)});
+  if(s.pillar.enabled) rows.push({label:`Pillar (2 nos., ${pillarSides||0}-sided)`, raw: sqft(pillarMaterialIn)});
+  if(s.jaali.enabled) rows.push({label:"Jaali", raw: sqft(jaaliMaterialIn)});
+  if(s.pocket.enabled) rows.push({label:"Pocket Door / Mehrab", raw: sqft(pocketMaterialIn)});
+  if(s.steps.enabled){
+    rows.push({label:`Steps — material (${stepsItems.length} nos.)`, raw: sqft(stepsMaterialIn)});
+    rows.push({label:"Steps — molding", raw: sqft(stepsMoldingIn)});
+  }
+  rows.push({label:"Ceiling & Base", raw: sqft(ceilingBaseIn)});
+  if(num(s.addl.area) > 0) rows.push({label:"Additional requirements", raw: num(s.addl.area)});
+
+  const totalRaw = rows.reduce((a,r) => a + r.raw, 0);
+  const wastageRaw = totalRaw * 0.1;
+  const consumedRaw = totalRaw + wastageRaw;
+
+  const heightCheckActive = s.shikhar.enabled && s.jaali.enabled && s.storage.enabled;
+  const shikharHeightSum = shikharItems.reduce((a,it) => a + it.height, 0);
+  const heightSum = shikharHeightSum + jaaliHeightActual + storageHeightActual;
+
+  const depthCheckActive = s.pillar.enabled && s.jaali.enabled;
+  const depthSum = pillarDepthActual + jaaliDepthActual;
+
+  return { totalH,totalW,totalD, storageWidthActual,storageDepthActual,storageHeightActual,
+    panelHeightActual,panelWidthActual,panelMaterialIn, shikharItems,shikharMaterialIn,shikharCount,shikharMaxW,shikharMaxD,shikharMoldingIn,
+    pillarHeightActual,pillarDepthActual,pillarSides,pillarMaterialIn, jaaliHeightActual,jaaliDepthActual,jaaliMaterialIn,
+    pocketHeightActual,pocketWidthActual,pocketMaterialIn, stepsItems,stepsMaterialIn,stepsMoldingIn,
+    storageMaterialIn,storageMoldingIn, ceilingBaseIn, rows,totalRaw,wastageRaw,consumedRaw,
+    heightCheckActive,heightSum, depthCheckActive,depthSum };
+}
+
+// ---------- markup builders ----------
+function field(path, label, value, suffix, placeholder){
+  suffix = suffix || "in"; placeholder = placeholder===undefined ? "0" : placeholder;
+  return `<label class="field">
+    <span class="flabel">${label}</span>
+    <div class="frow">
+      <input type="number" inputmode="decimal" id="${path}" data-path="${path}" value="${value ?? ""}" placeholder="${placeholder}"/>
+      <span class="fsuffix">${suffix}</span>
+    </div>
+  </label>`;
+}
+
+function overridableField(path, label, overrideVal, defaultVal, suffix){
+  suffix = suffix || "in";
+  const isOv = overrideVal !== null && overrideVal !== undefined;
+  return `<div class="field">
+    <div class="flabel-row">
+      <span class="flabel">${label}</span>
+      ${isOv ? `<button type="button" class="reset-btn" data-reset="${path}">↺ default</button>`
+             : `<span class="fdefault">= ${round2(defaultVal)}</span>`}
+    </div>
+    <div class="frow">
+      <input type="number" inputmode="decimal" id="${path}" data-path="${path}" class="${isOv?'overridden':''}"
+        value="${isOv ? overrideVal : ""}" placeholder="${round2(defaultVal)}"/>
+      <span class="fsuffix">${suffix}</span>
+    </div>
+  </div>`;
+}
+
+function sectionHeader(tag, hi, en, enabled, path){
+  return `<div class="sec-header">
+    <input type="checkbox" class="chk" data-toggle="${path}" ${enabled?"checked":""}/>
+    <span class="tag">${tag}</span>
+    <h3 class="sec-title">${hi} <span class="sec-en">· ${en}</span></h3>
+  </div>`;
+}
+
+function outRow(label, value, note, bold){
+  return `<div class="out-row ${bold?'bold':''}">
+    <div class="l">${label}${note?`<span class="n">${note}</span>`:""}</div>
+    <div class="v">${fmt(value)} sq ft</div>
+  </div>`;
+}
+
+function checkRow(label, sum, target, unit){
+  unit = unit || "in";
+  const diff = round2(sum - target);
+  const ok = Math.abs(diff) < 0.05;
+  return `<div class="check-row">
+    <span class="l">${label}</span>
+    <span class="r" style="color:${ok?'var(--ok)':'var(--alert)'}">
+      ${round2(sum)} ${unit} ${ok ? "✓ matches" : (diff>0?`(+${diff} over)`:`(${diff} under)`)} total ${round2(target)}
+    </span>
+  </div>`;
+}
+
+// ---------- main render ----------
+function buildHTML(s){
+  const c = computeAll(s);
+
+  const shikharItemsHTML = s.shikhar.items.map((it,i) => `
+    <div class="repeat-card">
+      <div class="repeat-tag"><span>SH-${String(i+1).padStart(2,"0")}</span></div>
+      ${field(`shikhar.items.${i}.height`, "Height", it.height)}
+      ${overridableField(`shikhar.items.${i}.widthOverride`, "Width", it.widthOverride, c.totalW)}
+      ${overridableField(`shikhar.items.${i}.depthOverride`, "Depth", it.depthOverride, c.totalD)}
+    </div>`).join("");
+
+  const stepsItemsHTML = s.steps.items.map((it,i) => `
+    <div class="repeat-card">
+      <div class="repeat-tag"><span>ST-${String(i+1).padStart(2,"0")}</span></div>
+      ${field(`steps.items.${i}.height`, "Height", it.height)}
+      ${overridableField(`steps.items.${i}.widthOverride`, "Width", it.widthOverride, c.totalW)}
+      ${field(`steps.items.${i}.depth`, "Depth", it.depth)}
+    </div>`).join("");
+
+  const checksHTML = (c.heightCheckActive || c.depthCheckActive) ? `
+    <div class="card">
+      <p class="checks-title">Checks</p>
+      ${c.heightCheckActive ? checkRow("Shikhar + Jaali + Storage height vs. Total height", c.heightSum, c.totalH) : ""}
+      ${c.depthCheckActive ? checkRow("Pillar + Jaali depth vs. Total depth", c.depthSum, c.totalD) : ""}
+    </div>` : "";
+
+  const rowsHTML = c.rows.map(r => outRow(r.label, r.raw, r.note)).join("");
+
+  return `
+    <div class="hdr-row">
+      <div>
+        <h1>शिखर to स्टोरेज — <span class="hi">a material take-off</span></h1>
+        <p class="sub-p">All entries in inches. Areas shown to 2 decimal places (sq ft).</p>
+      </div>
+      <button class="ghost" id="clearAllBtn" type="button">🗑 clear all</button>
+    </div>
+
+    <div class="card">
+      <h3>Total — मंदिर</h3>
+      <div class="grid3">
+        ${field("total.h", "Total Height", s.total.h)}
+        ${field("total.w", "Total Width", s.total.w)}
+        ${field("total.d", "Total Depth", s.total.d)}
+      </div>
+    </div>
+
+    <div class="card elements-card">
+      <div>
+        ${sectionHeader("01","शिखर","Shikhar", s.shikhar.enabled, "shikhar.enabled")}
+        <div class="sec-body" style="display:${s.shikhar.enabled?"grid":"none"}">
+          ${field("shikhar.count", "Number of Shikhars", s.shikhar.count, "nos.")}
+          <div></div>
+          ${shikharItemsHTML}
+        </div>
+      </div>
+
+      <div>
+        ${sectionHeader("02","स्टोरेज","Storage", s.storage.enabled, "storage.enabled")}
+        <div class="sec-body" style="display:${s.storage.enabled?"grid":"none"}">
+          ${field("storage.height", "Height", s.storage.height)}
+          ${overridableField("storage.widthOverride", "Width", s.storage.widthOverride, c.totalW)}
+          ${overridableField("storage.depthOverride", "Depth", s.storage.depthOverride, c.totalD)}
+          <div class="doors-row">
+            <input type="checkbox" class="chk" data-toggle="storage.hasDoors" ${s.storage.hasDoors?"checked":""}/>
+            <span>Has doors <span class="faint">— single drawer / door only</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        ${sectionHeader("03","पैनल","Panel", s.panel.enabled, "panel.enabled")}
+        <div class="sec-body" style="display:${s.panel.enabled?"grid":"none"}">
+          ${field("panel.height", "Height", s.panel.height)}
+          ${overridableField("panel.widthOverride", "Width", s.panel.widthOverride, c.totalW)}
+        </div>
+      </div>
+
+      <div>
+        ${sectionHeader("04","पिलर","Pillar (×2, identical)", s.pillar.enabled, "pillar.enabled")}
+        <div class="sec-body" style="display:${s.pillar.enabled?"grid":"none"}">
+          ${overridableField("pillar.heightOverride", "Height", s.pillar.heightOverride, c.panelHeightActual)}
+          ${field("pillar.depth", "Depth (= Width)", s.pillar.depth)}
+          ${field("pillar.sides", "Number of Sides", s.pillar.sides, "sides")}
+          <div class="note-line">Width is not entered separately — every face uses Depth, since width = depth on all sides.</div>
+        </div>
+      </div>
+
+      <div>
+        ${sectionHeader("05","जाली","Jaali", s.jaali.enabled, "jaali.enabled")}
+        <div class="sec-body" style="display:${s.jaali.enabled?"grid":"none"}">
+          ${overridableField("jaali.heightOverride", "Height", s.jaali.heightOverride, c.panelHeightActual)}
+          ${field("jaali.depth", "Depth", s.jaali.depth)}
+        </div>
+      </div>
+
+      <div>
+        ${sectionHeader("06","पॉकेट डोर / मेहराब","Pocket Door / Mehrab", s.pocket.enabled, "pocket.enabled")}
+        <div class="sec-body" style="display:${s.pocket.enabled?"grid":"none"}">
+          ${overridableField("pocket.heightOverride", "Height", s.pocket.heightOverride, c.panelHeightActual)}
+          ${overridableField("pocket.widthOverride", "Width", s.pocket.widthOverride, c.panelWidthActual)}
+        </div>
+      </div>
+
+      <div>
+        ${sectionHeader("07","सीढ़ी","Steps", s.steps.enabled, "steps.enabled")}
+        <div class="sec-body" style="display:${s.steps.enabled?"grid":"none"}">
+          ${field("steps.count", "Number of Steps", s.steps.count, "nos.")}
+          <div></div>
+          ${stepsItemsHTML}
+        </div>
+      </div>
+    </div>
+
+    ${checksHTML}
+
+    <div class="card">
+      <h3>Additional requirements</h3>
+      <div class="grid2-3">
+        ${field("addl.area", "Additional area", s.addl.area, "sq ft")}
+        <label class="field">
+          <span class="flabel">Comments</span>
+          <textarea id="addl.comments" data-path="addl.comments" rows="1">${s.addl.comments || ""}</textarea>
+        </label>
+      </div>
+    </div>
+
+    <div class="out-wrap">
+      <div class="out-head">
+        <h3>Material schedule</h3>
+        <button class="dl" id="downloadBtn" type="button">⤓ Download report (CSV)</button>
+      </div>
+      <div class="out-table">
+        ${rowsHTML}
+        <div style="margin-top:8px;"></div>
+        ${outRow("Total material used", c.totalRaw, null, true)}
+        ${outRow("Wastage (10%)", c.wastageRaw)}
+        <div class="out-total-rule">
+          ${outRow("Total material consumed", c.consumedRaw, null, true)}
+        </div>
+        ${s.addl.comments ? `<div class="notes-final"><span class="lbl">Notes: </span>${s.addl.comments}</div>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+// ---------- report download ----------
+function buildReportRows(s, c){
+  const r = [];
+  if(s.shikhar.enabled){
+    c.shikharItems.forEach((it,i) => r.push({element:`Shikhar ${i+1}`, height:round2(it.height), width:round2(it.width),
+      depth:round2(it.depth), extra:"", area: sqft((it.width+2*it.depth)*it.height)}));
+    if(c.shikharCount>0) r.push({element:`Shikhar molding (${c.shikharCount+1} nos.)`, height:2, width:round2(c.shikharMaxW),
+      depth:round2(c.shikharMaxD), extra:"", area: sqft(c.shikharMoldingIn)});
+  }
+  if(s.storage.enabled){
+    r.push({element:"Storage", height:round2(c.storageHeightActual), width:round2(c.storageWidthActual),
+      depth:round2(c.storageDepthActual), extra:"", area: sqft(c.storageMaterialIn)});
+    r.push({element:"Storage molding", height:round2(c.storageHeightActual), width:round2(c.storageWidthActual),
+      depth:round2(c.storageDepthActual), extra: s.storage.hasDoors?"has doors":"no doors", area: sqft(c.storageMoldingIn)});
+  }
+  if(s.panel.enabled) r.push({element:"Panel", height:round2(c.panelHeightActual), width:round2(c.panelWidthActual),
+    depth:"", extra:"", area: sqft(c.panelMaterialIn !== undefined ? c.panelMaterialIn : c.panelHeightActual*c.panelWidthActual)});
+  if(s.pillar.enabled) r.push({element:"Pillar (×2)", height:round2(c.pillarHeightActual), width:round2(c.pillarDepthActual),
+    depth:round2(c.pillarDepthActual), extra:`${c.pillarSides} sides`, area: sqft(c.pillarMaterialIn)});
+  if(s.jaali.enabled) r.push({element:"Jaali", height:round2(c.jaaliHeightActual), width:"", depth:round2(c.jaaliDepthActual),
+    extra:"", area: sqft(c.jaaliMaterialIn)});
+  if(s.pocket.enabled) r.push({element:"Pocket Door / Mehrab", height:round2(c.pocketHeightActual),
+    width:round2(c.pocketWidthActual), depth:"", extra:"", area: sqft(c.pocketMaterialIn)});
+  if(s.steps.enabled){
+    c.stepsItems.forEach((it,i) => r.push({element:`Step ${i+1}`, height:round2(it.height), width:round2(it.width),
+      depth:round2(it.depth), extra:"", area: sqft(it.height*it.width)}));
+    r.push({element:"Steps molding", height:"", width:"", depth:"", extra:"", area: sqft(c.stepsMoldingIn)});
+  }
+  r.push({element:"Ceiling & Base", height:"", width:round2(c.totalW), depth:round2(c.totalD), extra:"", area: sqft(c.ceilingBaseIn)});
+  if(num(s.addl.area) > 0) r.push({element:"Additional requirements", height:"", width:"", depth:"", extra:"", area: num(s.addl.area)});
+  return r;
+}
+
+function downloadReport(){
+  const c = computeAll(state);
+  const reportRows = buildReportRows(state, c);
+  const header = ["Element","Height (in)","Width (in)","Depth (in)","Notes","Area (sq ft)"];
+  const lines = [header.map(csvCell).join(",")];
+  reportRows.forEach(rr => {
+    lines.push([rr.element, rr.height, rr.width, rr.depth, rr.extra, fmt(rr.area)].map(csvCell).join(","));
+  });
+  lines.push("");
+  lines.push([csvCell("Total material used"),"","","","",fmt(c.totalRaw)].join(","));
+  lines.push([csvCell("Wastage (10%)"),"","","","",fmt(c.wastageRaw)].join(","));
+  lines.push([csvCell("Total material consumed"),"","","","",fmt(c.consumedRaw)].join(","));
+  if(state.addl.comments){
+    lines.push("");
+    lines.push([csvCell("Notes"), csvCell(state.addl.comments)].join(","));
+  }
+  const csv = lines.join("\n");
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "mandir-material-report.csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ---------- render loop with focus preservation ----------
+const root = document.getElementById("root");
+
+function render(){
+  const active = document.activeElement;
+  const activeId = active && active.id;
+  let selStart = null, selEnd = null;
+  if(active && typeof active.selectionStart === "number"){ selStart = active.selectionStart; selEnd = active.selectionEnd; }
+
+  root.innerHTML = buildHTML(state);
+  const c = computeAll(state);
+  document.getElementById("stickyTotal").innerHTML = `${fmt(c.consumedRaw)} <span>sq ft</span>`;
+
+  if(activeId){
+    const el = document.getElementById(activeId);
+    if(el){
+      el.focus();
+      if(selStart != null && el.setSelectionRange){
+        try{ el.setSelectionRange(selStart, selEnd); }catch(e){}
+      }
+    }
+  }
+}
+
+// ---------- event delegation ----------
+root.addEventListener("input", (e) => {
+  const path = e.target.dataset.path;
+  if(path){
+    setByPath(state, path, e.target.value);
+    if(e.target.id === "shikhar.count") resizeGroup("shikhar");
+    if(e.target.id === "steps.count") resizeGroup("steps");
+    render();
+  }
+});
+
+root.addEventListener("change", (e) => {
+  if(e.target.dataset.toggle){
+    setByPath(state, e.target.dataset.toggle, e.target.checked);
+    render();
+  }
+});
+
+root.addEventListener("click", (e) => {
+  const resetEl = e.target.closest("[data-reset]");
+  if(resetEl){ setByPath(state, resetEl.dataset.reset, null); render(); return; }
+  if(e.target.closest("#clearAllBtn")){ state = initialState(); render(); return; }
+  if(e.target.closest("#downloadBtn")){ downloadReport(); return; }
+});
+
+render();
+</script>
+</body>
+</html>
