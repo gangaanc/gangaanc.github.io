@@ -196,9 +196,10 @@ function computeAll(s){
   const shikharMoldingIn = shikharCount > 0 ? (shikharCount+1) * shikharPerMolding : 0;
 
   const storageMaterialIn = (storageWidthActual + 2*storageDepthActual) * storageHeightActual;
-  const storageMoldingIn = s.storage.hasDoors
+  const storageMoldingRaw = s.storage.hasDoors
     ? (storageHeightActual+6) * (2*storageDepthActual + storageWidthActual)
     : (storageHeightActual+2) * (2*storageDepthActual + storageWidthActual);
+  const storageMoldingIn = storageMoldingRaw - storageMaterialIn;
 
   const panelMaterialIn = panelHeightActual * panelWidthActual;
   const pillarMaterialIn = pillarDepthActual * pillarHeightActual * pillarSides * 2;
@@ -206,16 +207,17 @@ function computeAll(s){
   const pocketMaterialIn = pocketHeightActual * pocketWidthActual;
   const stepsMaterialIn = stepsItems.reduce((a,it) => a + it.height*it.width, 0);
   const stepsMoldingIn = stepsItems.reduce((a,it) => a + it.width, 0);
-  const ceilingBaseIn = totalW * totalD * 2;
+  const ceilingIn = s.shikhar.enabled ? totalW * totalD : 0;
+  const baseIn = s.storage.enabled ? totalW * totalD : 0;
 
   const rows = [];
   if(s.shikhar.enabled){
     rows.push({label:`Shikhar — material (${shikharCount} nos.)`, raw: sqft(shikharMaterialIn)});
-    if(shikharCount > 0) rows.push({label:`Shikhar — molding (${shikharCount+1} nos.)`, raw: sqft(shikharMoldingIn)});
+    if(shikharCount > 0) rows.push({label:`Moldings for shikhar (${shikharCount+1} nos.)`, raw: sqft(shikharMoldingIn)});
   }
   if(s.storage.enabled){
     rows.push({label:"Storage", raw: sqft(storageMaterialIn)});
-    rows.push({label:"Storage — molding", raw: sqft(storageMoldingIn),
+    rows.push({label:"Moldings for storage", raw: sqft(storageMoldingIn),
       note: s.storage.hasDoors ? "single door/drawer, (H+6)×(2D+W)" : "single door/drawer, (H+2)×(2D+W)"});
   }
   if(s.panel.enabled) rows.push({label:"Panel", raw: sqft(panelMaterialIn)});
@@ -226,7 +228,8 @@ function computeAll(s){
     rows.push({label:`Steps — material (${stepsItems.length} nos.)`, raw: sqft(stepsMaterialIn)});
     rows.push({label:"Steps — molding", raw: sqft(stepsMoldingIn)});
   }
-  rows.push({label:"Ceiling & Base", raw: sqft(ceilingBaseIn)});
+  if(s.shikhar.enabled) rows.push({label:"Ceiling", raw: sqft(ceilingIn)});
+  if(s.storage.enabled) rows.push({label:"Base", raw: sqft(baseIn)});
   if(num(s.addl.area) > 0) rows.push({label:"Additional requirements", raw: num(s.addl.area)});
 
   const totalRaw = rows.reduce((a,r) => a + r.raw, 0);
@@ -244,7 +247,7 @@ function computeAll(s){
     panelHeightActual,panelWidthActual,panelMaterialIn, shikharItems,shikharMaterialIn,shikharCount,shikharMaxW,shikharMaxD,shikharMoldingIn,
     pillarHeightActual,pillarDepthActual,pillarSides,pillarMaterialIn, jaaliHeightActual,jaaliDepthActual,jaaliMaterialIn,
     pocketHeightActual,pocketWidthActual,pocketMaterialIn, stepsItems,stepsMaterialIn,stepsMoldingIn,
-    storageMaterialIn,storageMoldingIn, ceilingBaseIn, rows,totalRaw,wastageRaw,consumedRaw,
+    storageMaterialIn,storageMoldingIn, ceilingIn,baseIn, rows,totalRaw,wastageRaw,consumedRaw,
     heightCheckActive,heightSum, depthCheckActive,depthSum };
 }
 
@@ -254,7 +257,7 @@ function field(path, label, value, suffix, placeholder){
   return `<label class="field">
     <span class="flabel">${label}</span>
     <div class="frow">
-      <input type="number" inputmode="decimal" id="${path}" data-path="${path}" value="${value ?? ""}" placeholder="${placeholder}"/>
+      <input type="text" inputmode="decimal" id="${path}" data-path="${path}" value="${value ?? ""}" placeholder="${placeholder}"/>
       <span class="fsuffix">${suffix}</span>
     </div>
   </label>`;
@@ -270,7 +273,7 @@ function overridableField(path, label, overrideVal, defaultVal, suffix){
              : `<span class="fdefault">= ${round2(defaultVal)}</span>`}
     </div>
     <div class="frow">
-      <input type="number" inputmode="decimal" id="${path}" data-path="${path}" class="${isOv?'overridden':''}"
+      <input type="text" inputmode="decimal" id="${path}" data-path="${path}" class="${isOv?'overridden':''}"
         value="${isOv ? overrideVal : ""}" placeholder="${round2(defaultVal)}"/>
       <span class="fsuffix">${suffix}</span>
     </div>
@@ -456,13 +459,13 @@ function buildReportRows(s, c){
   if(s.shikhar.enabled){
     c.shikharItems.forEach((it,i) => r.push({element:`Shikhar ${i+1}`, height:round2(it.height), width:round2(it.width),
       depth:round2(it.depth), extra:"", area: sqft((it.width+2*it.depth)*it.height)}));
-    if(c.shikharCount>0) r.push({element:`Shikhar molding (${c.shikharCount+1} nos.)`, height:2, width:round2(c.shikharMaxW),
+    if(c.shikharCount>0) r.push({element:`Moldings for shikhar (${c.shikharCount+1} nos.)`, height:2, width:round2(c.shikharMaxW),
       depth:round2(c.shikharMaxD), extra:"", area: sqft(c.shikharMoldingIn)});
   }
   if(s.storage.enabled){
     r.push({element:"Storage", height:round2(c.storageHeightActual), width:round2(c.storageWidthActual),
       depth:round2(c.storageDepthActual), extra:"", area: sqft(c.storageMaterialIn)});
-    r.push({element:"Storage molding", height:round2(c.storageHeightActual), width:round2(c.storageWidthActual),
+    r.push({element:"Moldings for storage", height:round2(c.storageHeightActual), width:round2(c.storageWidthActual),
       depth:round2(c.storageDepthActual), extra: s.storage.hasDoors?"has doors":"no doors", area: sqft(c.storageMoldingIn)});
   }
   if(s.panel.enabled) r.push({element:"Panel", height:round2(c.panelHeightActual), width:round2(c.panelWidthActual),
@@ -478,7 +481,8 @@ function buildReportRows(s, c){
       depth:round2(it.depth), extra:"", area: sqft(it.height*it.width)}));
     r.push({element:"Steps molding", height:"", width:"", depth:"", extra:"", area: sqft(c.stepsMoldingIn)});
   }
-  r.push({element:"Ceiling & Base", height:"", width:round2(c.totalW), depth:round2(c.totalD), extra:"", area: sqft(c.ceilingBaseIn)});
+  if(s.shikhar.enabled) r.push({element:"Ceiling", height:"", width:round2(c.totalW), depth:round2(c.totalD), extra:"", area: sqft(c.ceilingIn)});
+  if(s.storage.enabled) r.push({element:"Base", height:"", width:round2(c.totalW), depth:round2(c.totalD), extra:"", area: sqft(c.baseIn)});
   if(num(s.addl.area) > 0) r.push({element:"Additional requirements", height:"", width:"", depth:"", extra:"", area: num(s.addl.area)});
   return r;
 }
